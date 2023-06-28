@@ -18,10 +18,6 @@ const Searchbar = ({ onSubmit }) => {
     evt.target.reset();
   };
 
-  const reset = () => {
-    setSearchQuery('');
-  };
-
   return (
     <header className={css.Searchbar}>
       <form className={css.SearchForm} onSubmit={handleSubmit}>
