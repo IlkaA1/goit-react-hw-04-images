@@ -41,32 +41,32 @@ export const App = () => {
     setPage(page + 1);
   };
 
-  const fetchApi = async (searchQuery, page) => {
-    setIsLoading(true);
-
-    try {
-      await fetchArticlesWithQuery(searchQuery, page).then(res => {
-        const { hits, totalHits } = res.data;
-        if (hits.length > 0) {
-          setArticles([...articles, ...hits]);
-          setLoadMore(page < Math.ceil(totalHits / 12));
-        } else {
-          setArticles([]);
-          setLoadMore(false);
-          return Notiflix.Notify.failure(
-            '🤔 Sorry, the search did not find anything. Please try again'
-          );
-        }
-      });
-    } catch ({ error }) {
-      setError(true);
-      setArticles([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchApi = async (searchQuery, page) => {
+      setIsLoading(true);
+
+      try {
+        await fetchArticlesWithQuery(searchQuery, page).then(res => {
+          const { hits, totalHits } = res.data;
+          if (hits.length > 0) {
+            setArticles([...articles, ...hits]);
+            setLoadMore(page < Math.ceil(totalHits / 12));
+          } else {
+            setArticles([]);
+            setLoadMore(false);
+            return Notiflix.Notify.failure(
+              '🤔 Sorry, the search did not find anything. Please try again'
+            );
+          }
+        });
+      } catch ({ error }) {
+        setError(true);
+        setArticles([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     if (searchQuery) {
       fetchApi(searchQuery, page);
     }

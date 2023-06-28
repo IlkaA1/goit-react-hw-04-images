@@ -4,15 +4,14 @@ import PropTypes from 'prop-types';
 
 export const Modal = ({ closeModal, img }) => {
   useEffect(() => {
+    const onKeyPressed = e => {
+      if (e.keyCode === 27) {
+        document.removeEventListener('keydown', onKeyPressed);
+        return closeModal('close');
+      }
+    };
     document.addEventListener('keydown', onKeyPressed);
-  }, []);
-
-  const onKeyPressed = e => {
-    if (e.keyCode === 27) {
-      document.removeEventListener('keydown', onKeyPressed);
-      return closeModal('close');
-    }
-  };
+  }, [closeModal]);
 
   return (
     <div
