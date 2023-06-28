@@ -49,7 +49,7 @@ export const App = () => {
         await fetchArticlesWithQuery(searchQuery, page).then(res => {
           const { hits, totalHits } = res.data;
           if (hits.length > 0) {
-            setArticles([...articles, ...hits]);
+            setArticles(prev => [...prev, ...hits]);
             setLoadMore(page < Math.ceil(totalHits / 12));
           } else {
             setArticles([]);
@@ -70,7 +70,7 @@ export const App = () => {
     if (searchQuery) {
       fetchApi(searchQuery, page);
     }
-  }, [searchQuery, page]);
+  }, [page, searchQuery]);
 
   return (
     <div className={css.App}>
