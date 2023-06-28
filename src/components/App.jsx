@@ -1,5 +1,5 @@
 import { fetchArticlesWithQuery } from '../services/services';
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import Notiflix from 'notiflix';
 import css from './app.module.css';
 
@@ -9,101 +9,80 @@ import Button from './Button/Button';
 import Modal from './Modal/Modal';
 import Loader from './Loader/Loader';
 
-export class App extends Component {
-  state = {
-    articles: [],
-    isLoading: false,
-    error: false,
-    searchQuery: '',
-    page: 1,
-    loadMore: false,
-    webformatURL: '',
-    showModal: false,
+export const App = () => {
+  const [articles, setArticles] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [loadMore, setLoadMore] = useState(false);
+  const [webformatURL, setWebformatURL] = useState('');
+  const [showModal, setShowModal] = useState(false);
+
+  const сlickOnSubmit = searchQuery => {
+    setSearchQuery(searchQuery);
+    setPage(1);
+    setArticles([]);
+    setError(false);
   };
 
-  сlickOnSubmit = searchQuery => {
-    this.setState({
-      searchQuery,
-      page: 1,
-      articles: [],
-      error: false,
-    });
+  const clickOnImg = img => {
+    setWebformatURL(img);
+    setShowModal(true);
   };
 
-  clickOnImg = img => {
-    return this.setState({
-      webformatURL: img,
-      showModal: true,
-    });
-  };
-
-  closeModal = closeKey => {
+  const closeModal = closeKey => {
     if ('modal_Overlay__hpzKM' || 'close') {
-      this.setState({ showModal: false });
+      setShowModal(false);
     }
   };
 
-  сlickOnButton = evt => {
-    this.setState(prev => {
-      return { page: prev.page + 1 };
-    });
+  const сlickOnButton = evt => {
+    setPage(page + 1);
   };
 
-  fetchApi = async (searchQuery, page) => {
-    this.setState({ isLoading: true });
+  const fetchApi = async (searchQuery, page) => {
+    setIsLoading(true);
+
     try {
       await fetchArticlesWithQuery(searchQuery, page).then(res => {
         const { hits, totalHits } = res.data;
         if (hits.length > 0) {
-          this.setState({
-            articles: [...this.state.articles, ...hits],
-            loadMore: this.state.page < Math.ceil(totalHits / 12),
-          });
+          setArticles([...articles, ...hits]);
+          setLoadMore(page < Math.ceil(totalHits / 12));
         } else {
-          this.setState({
-            articles: [],
-            loadMore: false,
-          });
+          setArticles([]);
+          setLoadMore(false);
           return Notiflix.Notify.failure(
             '🤔 Sorry, the search did not find anything. Please try again'
           );
         }
       });
     } catch ({ error }) {
-      this.setState({
-        error: true,
-        articles: [],
-      });
+      setError(true);
+      setArticles([]);
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
     }
   };
 
-  async componentDidUpdate(prevProps, prevState) {
-    if (
-      this.state.page !== prevState.page ||
-      this.state.searchQuery !== prevState.searchQuery
-    ) {
-      await this.fetchApi(this.state.searchQuery, this.state.page);
+  useEffect(() => {
+    if (searchQuery) {
+      fetchApi(searchQuery, page);
     }
-  }
+  }, [searchQuery, page]);
 
-  render() {
-    const { articles, isLoading, loadMore, error, webformatURL, showModal } =
-      this.state;
+  return (
+    <div className={css.App}>
+      <Searchbar onSubmit={сlickOnSubmit} />
+      {isLoading && <Loader />}
+      {error && Notiflix.Notify.failure('Error!!!')}
+      {articles.length > 0 && (
+        <ImageGallery articles={articles} clickOnImg={clickOnImg} />
+      )}
+      {showModal && <Modal img={webformatURL} closeModal={closeModal} />}
 
-    return (
-      <div className={css.App}>
-        <Searchbar onSubmit={this.сlickOnSubmit} />
-        {isLoading && <Loader />}
-        {error && Notiflix.Notify.failure('Error!!!')}
-        {articles.length > 0 && (
-          <ImageGallery articles={articles} clickOnImg={this.clickOnImg} />
-        )}
-        {showModal && <Modal img={webformatURL} closeModal={this.closeModal} />}
-
-        {loadMore && <Button onClick={this.сlickOnButton} />}
-      </div>
-    );
-  }
-}
+      {loadMore && <Button onClick={сlickOnButton} />}
+    </div>
+  );
+};

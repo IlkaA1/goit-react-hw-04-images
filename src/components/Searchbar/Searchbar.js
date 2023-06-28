@@ -1,52 +1,48 @@
 import css from './search.module.css';
 import { FcSearch } from 'react-icons/fc';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
-class Searchbar extends Component {
-  state = {
-    searchQuery: '',
+const Searchbar = ({ onSubmit }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const onChangeState = ({ target: { value } }) => {
+    setSearchQuery(value);
   };
 
-  onChangeState = ({ target: { name, value } }) => {
-    this.setState({ [name]: value });
-  };
-
-  handleSubmit = evt => {
+  const handleSubmit = evt => {
     evt.preventDefault();
 
-    this.props.onSubmit(this.state.searchQuery);
+    onSubmit(searchQuery);
 
     evt.target.reset();
   };
 
-  reset = () => {
-    this.setState({ searchQuery: '' });
+  const reset = () => {
+    setSearchQuery('');
   };
 
-  render() {
-    return (
-      <header className={css.Searchbar}>
-        <form className={css.SearchForm} onSubmit={this.handleSubmit}>
-          <input
-            className={css.SearchForm_input}
-            name="searchQuery"
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            id="searchQuery"
-            onChange={this.onChangeState}
-          />
-          <button type="submit" className={css.SearchForm_button}>
-            <FcSearch />
-            <span className={css.SearchForm_button_label}>Search</span>
-          </button>
-        </form>
-      </header>
-    );
-  }
-}
+  return (
+    <header className={css.Searchbar}>
+      <form className={css.SearchForm} onSubmit={handleSubmit}>
+        <input
+          className={css.SearchForm_input}
+          name="searchQuery"
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          id="searchQuery"
+          onChange={onChangeState}
+        />
+        <button type="submit" className={css.SearchForm_button}>
+          <FcSearch />
+          <span className={css.SearchForm_button_label}>Search</span>
+        </button>
+      </form>
+    </header>
+  );
+};
 
 Searchbar.propTypes = {
   onSubmit: PropTypes.func.isRequired,
