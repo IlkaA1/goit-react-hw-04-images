@@ -6,11 +6,12 @@ export const Modal = ({ closeModal, img }) => {
   useEffect(() => {
     const onKeyPressed = e => {
       if (e.keyCode === 27) {
-        document.removeEventListener('keydown', onKeyPressed);
-        return closeModal('close');
+        closeModal('close');
       }
     };
     document.addEventListener('keydown', onKeyPressed);
+
+    return () => document.removeEventListener('keydown', onKeyPressed);
   }, [closeModal]);
 
   return (
